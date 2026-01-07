@@ -1,0 +1,163 @@
+{
+  "AiPlugins": [
+    {
+      "pluginName": "weather_forecast_plugin",
+      "allowedClients": ["Agent:AzureWeatherForecastAgent"],
+      "isLKG": false,
+      "icm": {
+        "service": "weather",
+        "team": "YourTeam",
+        "teamId": "12345"
+      },
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0",
+        "name_for_human": "Weather Forecast Plugin",
+        "description_for_human": "Plugin for generating weather forecasts and current weather information for given locations.",
+        "functions": [
+          {
+            "name": "generate_weather_forecast",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The name of the location to get weather information for."
+                },
+                "info_type": {
+                  "type": "string",
+                  "description": "The type of weather information to generate",
+                  "enum": ["current", "forecast"]
+                },
+                "user_query": {
+                  "type": "string",
+                  "description": "The user's query for weather information as it is. This is used to provide context for the weather request."
+                }
+              },
+              "required": [ "location", "info_type" ]
+            },
+            "states": {
+              "reasoning": {
+                "description": "Provides the weather information based on user requests for a given location. This function can generate current weather information and forecasts.",
+                "examples": [
+                  "What's the weather like today in Hyderabad?",
+                  "Will it rain tomorrow in Hyderabad?",
+                  "Give me a weather forecast for this weekend in Hyderabad."
+                ]
+              }
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Http",
+            "auth": {
+              "scopes": ["https://management.azure.com/.default"],
+              "type": "EntraOnBehalfOf"
+            },
+            "spec": [
+              {
+                "dataBoundary": "ROW",
+                "url": "https://venus-acp-httpplugins.azurewebsites.net/api/Weather",
+                "http_method": "POST",
+                "script": "function EvaluateHttpPluginPayLoad(response) local location = response and response.location or 'Hyderabad' local info_type = response and response.info_type or 'current' local user_query = response and response.user_query or 'none' return { location = location, info_type = info_type, user_query = user_query } end"
+              }
+            ],
+            "run_for_functions": ["generate_weather_forecast"]
+          }
+        ]
+      }
+    }
+  ],
+  "AiAgents": [
+    {
+      "agentName": "AzureWeatherForecastAgent",
+      "allowedClients": [
+          "Agent:AzureWeatherAgent"
+      ],
+      "isLKG": false,
+      "icm": {
+        "service": "weather",
+        "team": "YourTeam",
+        "teamId": "12345"
+      },
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0",
+        "name_for_human": "Thinking about your weather request",
+        "description_for_human": "An intelligent agent that provides weather information and forecasts",
+        "functions": [
+          {
+            "name": "AzureWeatherForecastAgent",
+            "states": {
+              "reasoning": {
+                "description": "Analyzes Azure user requests for weather information and generates appropriate responses.",
+                "examples": [
+                  "What's the weather like today in Hyderabad?",
+                  "Will it rain tomorrow in Hyderabad?",
+                  "Give me a weather forecast for this weekend in Hyderabad."
+                ]
+              }
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Agent",
+            "spec": {
+              "instructions": "You are a weather information assistant that helps Azure users get weather updates and forecasts. When a user requests weather information, analyze their requirements including:\n\n1. The location (if provided)\n2. The type of weather information they want (current weather, forecast.)\n\nUse the generate_weather_response function to create appropriate responses. If specific details aren't provided, ask clarifying questions or provide reasonable defaults.\n\nExamples of how to respond:\n- For \"What's the weather like in New York?\": Use the function with location=\"New York\" and info_type=\"current\"\n- For \"Will it rain tomorrow in London?\": Use location=\"London\" and info_type=\"forecast\"\n- For \"Give me a weather forecast for this weekend in Paris\": Use location=\"Paris\" and info_type=\"forecast\"\n\n. Do not trim or reduce the forecast data recieved from the plugin, instead enhance the response with additional factors like for.",
+              "model": "gpt-4o"
+            },
+            "run_for_functions": [ "AzureWeatherForecastAgent" ]
+          }
+        ]
+      }
+    },
+    {
+      "agentName": "AzureWeatherAgent",
+      "allowedClients": [
+          "AzurePortalProd",
+          "AzurePortalRC",
+          "AzurePortalMPAC",
+          "Dev"
+      ],
+      "isLKG": false,
+      "icm": {
+        "service": "weather",
+        "team": "YourTeam",
+        "teamId": "12345"
+      },
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0",
+        "name_for_human": "Thinking about your weather request",
+        "description_for_human": "An intelligent agent that provides summerized weather information and forecasts",
+        "functions": [
+          {
+            "name": "AzureWeatherAgent",
+            "states": {
+              "reasoning": {
+                "description": "Analyzes Azure user requests for weather information and generates appropriate responses.",
+                "examples": [
+                  "What's the weather like today in Hyderabad, India?",
+                  "Will it rain tomorrow?",
+                  "Give me a weather forecast for this weekend."
+                ]
+              }
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Agent",
+            "spec": {
+              "instructions": "You are a weather information assistant that helps Azure users get weather updates and forecasts. When a user requests weather information, always use the AzureWeatherForecastAgent to fetch the weather information. If AzureWeatherForecastAgent says it needs additional input, for example location, then pass the query to the user.",
+              "model": "gpt-4o"
+            },
+            "run_for_functions": [ "AzureWeatherAgent" ]
+          }
+        ]
+      }
+    }
+  ]
+}

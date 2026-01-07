@@ -1,0 +1,152 @@
+{
+  "AiPlugins": [
+    {
+      "pluginName": "Azure_restaurant_fullMenu_plugin",
+      "isLKG": true,
+      "allowedClients": [
+        "Agent:RestaurantAgent"
+      ],
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0.0",
+        "name_for_human": "Azure Restaurant Menu Plugin",
+        "description_for_human": "Provides the restaurant full menu that has all the food items and their details.",
+        "functions": [
+          {
+            "name": "fullMenu",
+            "states": {
+              "reasoning": {
+                "description": "Provides the restaurant full menu that has all the food items and their details.",
+                "examples": [
+                  "Show me the full menu of the restaurant.",
+                  "What are all the dishes available at Azure Restaurant?",
+                  "List all food items with prices and ingredients.",
+                  "I want to see the complete menu.",
+                  "Give me details of all the dishes you serve."
+                ]
+              }
+            },
+            "parameters": {
+                "type": "object",
+                "properties": {}
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Http",
+            "auth": {
+              "scopes": ["https://management.azure.com/.default"],
+              "type": "EntraClientCredentials"
+            },
+            "spec": [
+                {
+                    "dataBoundary": "ROW",
+                    "url": "https://restaurantservice-app-2025111821.gentlemeadow-f7257fcb.eastus.azurecontainerapps.io/api/Plugins/fullMenu",
+                    "http_method": "GET"
+                }
+            ],
+            "run_for_functions": ["fullMenu"]
+          }
+        ]
+      }
+    },
+    {
+      "pluginName": "Azure_restaurant_list_slots_plugin",
+      "isLKG": true,
+      "allowedClients": [
+        "Agent:RestaurantAgent"
+      ],
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0.0",
+        "name_for_human": "Azure Restaurant List Slots Plugin",
+        "description_for_human": "Provides the restaurant slots availability for table reservations.",
+        "functions": [
+          {
+            "name": "listSlots",
+            "states": {
+              "reasoning": {
+                "description": "Provides the restaurant full slots availability for dining and table reservations.",
+                "examples": [
+                  "What are the available slots for dinner reservations?",
+                  "List all available time slots for a table.",
+                  "Show me the reservation slots for today.",
+                  "I want to see available dining times.",
+                  "Give me details of open slots for table booking."
+                ]
+              }
+            },
+            "parameters": {
+                "type": "object",
+                "properties": {}
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Http",
+            "auth": {
+              "scopes": ["https://management.azure.com/.default"],
+              "type": "EntraClientCredentials"
+            },
+            "spec": [
+                {
+                    "dataBoundary": "ROW",
+                    "url": "https://restaurantservice-app-2025111821.gentlemeadow-f7257fcb.eastus.azurecontainerapps.io/api/Plugins/dailyAvailability",
+                    "http_method": "GET"
+                }
+            ],
+            "run_for_functions": ["listSlots"]
+          }
+        ]
+      }
+    }
+  ],
+  "AiAgents": [
+    {
+      "agentName": "RestaurantAgent",
+      "allowedClients": [
+          "AzurePortalProdAdvanced",
+          "AzurePortalProd",
+          "AzurePortalRCAdvanced",
+          "AzurePortalRC",
+          "AzurePortalMPACAdvanced",
+          "AzurePortalMPAC"
+      ],
+      "isLKG": true,
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0.0",
+        "name_for_human": "Azure Restaurant Agent",
+        "description_for_human": "An intelligent agent for Azure Restaurant that answers menu questions, shows availability.",
+        "functions": [
+          {
+            "name": "RestaurantAgent",
+            "states": {
+              "reasoning": {
+                "description": "Handles inquiries about the Azure Restaurant menu, including dishes, ingredients, pricing, and dietary suitability. Also manages table reservations by checking availability and booking slots.",
+                "examples": [
+                  "What vegetarian options do you have?",
+                  "Book a table for 2 people for dinner.",
+                  "Is the Butter Chicken spicy?",
+                  "Show me the Restaurant menu."
+                ]
+              }
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Agent",
+            "spec": {
+              "instructions": "You are the Azure Restaurant Agent. Your role is to assist customers with menu inquiries, restaurant timings and table reservations.\n\nCapabilities:\n1. Menu Assistance: Provide details about dishes, including ingredients, spice levels, and dietary tags (Vegetarian, Non-Veg). Recommend dishes based on preferences.\n2. Pricing: All prices are in Indian Rupees (\u20B9).\n\nGuidelines:\n- Be polite, welcoming, and helpful.\n- If a user asks about prices, quote them in Indian Rupees (\u20B9).\n- If uncertain about a request, ask for clarification (\u20B9).\n- **Make sure to provide details only based on the Azure Restaurant menu and slots availability data you fetch from the fullMenu and listSlots plugins.**",
+              "model": "gpt-5-mini"
+            },
+            "run_for_functions": ["RestaurantAgent"]
+          }
+        ]
+      }
+    }
+  ]
+}
