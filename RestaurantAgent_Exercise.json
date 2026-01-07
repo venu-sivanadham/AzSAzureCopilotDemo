@@ -1,0 +1,295 @@
+{
+  "AiPlugins": [
+    {
+      "pluginName": "Azure_restaurant_fullMenu_plugin",
+      "isLKG": true,
+      "allowedClients": [
+        "Agent:RestaurantAgent"
+      ],
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0.0",
+        "name_for_human": "Azure Restaurant Menu Plugin",
+        "description_for_human": "Provides the restaurant full menu that has all the food items and their details.",
+        "functions": [
+          {
+            "name": "fullMenu",
+            "states": {
+              "reasoning": {
+                "description": "Provides the restaurant full menu that has all the food items and their details.",
+                "examples": [
+                  "Show me the full menu of the restaurant.",
+                  "What are all the dishes available at Azure Restaurant?",
+                  "List all food items with prices and ingredients.",
+                  "I want to see the complete menu.",
+                  "Give me details of all the dishes you serve."
+                ]
+              }
+            },
+            "parameters": {
+                "type": "object",
+                "properties": {}
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Http",
+            "auth": {
+              "scopes": ["https://management.azure.com/.default"],
+              "type": "EntraClientCredentials"
+            },
+            "spec": [
+                {
+                    "dataBoundary": "ROW",
+                    "url": "https://restaurantservice-app-2025111821.gentlemeadow-f7257fcb.eastus.azurecontainerapps.io/api/Plugins/fullMenu",
+                    "http_method": "GET"
+                }
+            ],
+            "run_for_functions": ["fullMenu"]
+          }
+        ]
+      }
+    },
+    {
+      "pluginName": "Azure_restaurant_list_slots_plugin",
+      "isLKG": true,
+      "allowedClients": [
+        "Agent:RestaurantAgent"
+      ],
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0.0",
+        "name_for_human": "Azure Restaurant List Slots Plugin",
+        "description_for_human": "Provides the restaurant slots availability for table reservations.",
+        "functions": [
+          {
+            "name": "listSlots",
+            "states": {
+              "reasoning": {
+                "description": "Provides the restaurant full slots availability for dining and table reservations.",
+                "examples": [
+                  "What are the available slots for dinner reservations?",
+                  "List all available time slots for a table.",
+                  "Show me the reservation slots for today.",
+                  "I want to see available dining times.",
+                  "Give me details of open slots for table booking."
+                ]
+              }
+            },
+            "parameters": {
+                "type": "object",
+                "properties": {}
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Http",
+            "auth": {
+              "scopes": ["https://management.azure.com/.default"],
+              "type": "EntraClientCredentials"
+            },
+            "spec": [
+                {
+                    "dataBoundary": "ROW",
+                    "url": "https://restaurantservice-app-2025111821.gentlemeadow-f7257fcb.eastus.azurecontainerapps.io/api/Plugins/dailyAvailability",
+                    "http_method": "GET"
+                }
+            ],
+            "run_for_functions": ["listSlots"]
+          }
+        ]
+      }
+    },
+    {
+      "pluginName": "Azure_restaurant_check_slot_availability_plugin",
+      "isLKG": true,
+      "allowedClients": [
+        "Agent:RestaurantAgent"
+      ],
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0.0",
+        "name_for_human": "Azure Restaurant Slot Availability Check Plugin",
+        "description_for_human": "Verifies the restaurant slot availability for the given slot.",
+        "functions": [
+          {
+            "name": "checkSlotAvailability",
+            "states": {
+              "reasoning": {
+                "description": "Verifies the restaurant slot availability for the given slot.",
+                "examples": [
+                  "Is the 12 PM to 2 PM lunch slot available for 4 people?",
+                  "Check if there is availability for dinner from 6 PM to 8 PM."
+                ]
+              }
+            },
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "description": "The date for which to check slot availability in YYYY-MM-DD format. If user does not provide a date, assume today's date."
+                    },
+                    "timeSlot": {
+                        "type": "string",
+                        "description": "The time slot to check slot availability. This should be in the format '<Lunch/Dinner>_<start-hour>_<end-hour>', e.g., 'Lunch_12_13', 'Dinner_18_19'. All reservations must be for one-hour slot within the lunch (12 PM to 3 PM) or dinner (6 PM to 10 PM) periods."
+                    },
+                    "NumberOfTables": {
+                        "type": "integer",
+                        "description": "The number of guests for the reservation. default to 1 if not provided by the user and maximum is 10."
+                    }
+                },
+                "required": ["date", "timeSlot"]
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Http",
+            "auth": {
+              "scopes": ["https://management.azure.com/.default"],
+              "type": "EntraClientCredentials"
+            },
+            "spec": [
+                {
+                    "dataBoundary": "ROW",
+                    "url": "https://restaurantservice-app-2025111821.gentlemeadow-f7257fcb.eastus.azurecontainerapps.io/api/Plugins/checkAvailability",
+                    "http_method": "POST"
+                }
+            ],
+            "run_for_functions": ["checkSlotAvailability"]
+          }
+        ]
+      }
+    },
+    {
+      "pluginName": "Azure_restaurant_reserve_slot_plugin",
+      "isLKG": true,
+      "allowedClients": [
+        "Agent:RestaurantAgent"
+      ],
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0.0",
+        "name_for_human": "Azure Restaurant Slot Reservation Plugin",
+        "description_for_human": "Reserves a table slot for the given date and time.",
+        "functions": [
+          {
+            "name": "reserveSlot",
+            "states": {
+              "reasoning": {
+                "description": "Reserves a table slot for the given date and time.",
+                "examples": [
+                  "Book a table for 2 people for lunch at 1 PM today.",
+                  "Reserve a dinner slot from 6 PM to 8 PM for 4 guests.",
+                  "I want to book a table for 3 at 12 PM for lunch.",
+                  "Please reserve a dinner table for 5 people from 7 PM to 9 PM."
+                ]
+              }
+            },
+            "parameters": {
+                "type": "object",
+                "properties": {
+                  "reservationDate": {
+                      "type": "string",
+                      "description": "The date for which to reserve the slot in YYYY-MM-DD format. If user does not provide a date, assume today's date."
+                  },
+                  "timeSlot": {
+                      "type": "string",
+                      "description": "The time slot to reserve. This should be in the format '<Lunch/Dinner>_<start-hour>_<end-hour>', e.g., 'Lunch_12_13', 'Dinner_18_19'. All reservations must be for one-hour slot within the lunch (12 PM to 3 PM) or dinner (6 PM to 10 PM) periods."
+                  },
+                  "numberOfTables": {
+                      "type": "integer",
+                      "description": "The number of guests for the reservation. default to 1 if not provided by the user and maximum is 10."
+                  },
+                  "customerName": {
+                      "type": "string",
+                      "description": "The name of the customer making the reservation."
+                  },
+                  "customerPhone": {
+                      "type": "string",
+                      "description": "The phone number of the customer making the reservation."
+                  },
+                  "customerEmail": {
+                      "type": "string",
+                      "description": "The email address of the customer making the reservation."
+                  }
+                },
+                "required": [
+                  "reservationDate",
+                  "timeSlot",
+                  "numberOfTables",
+                  "customerName"
+                ]
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Http",
+            "auth": {
+              "scopes": ["https://management.azure.com/.default"],
+              "type": "EntraClientCredentials"
+            },
+            "spec": [
+                {
+                    "dataBoundary": "ROW",
+                    "url": "https://restaurantservice-app-2025111821.gentlemeadow-f7257fcb.eastus.azurecontainerapps.io/api/Plugins/createReservation",
+                    "http_method": "POST"
+                }
+            ],
+            "run_for_functions": ["reserveSlot"]
+          }
+        ]
+      }
+    }
+  ],
+  "AiAgents": [
+        {
+      "agentName": "RestaurantAgent",
+      "allowedClients": [
+          "AzurePortalProdAdvanced",
+          "AzurePortalProd",
+          "AzurePortalRCAdvanced",
+          "AzurePortalRC",
+          "AzurePortalMPACAdvanced",
+          "AzurePortalMPAC"
+      ],
+      "isLKG": true,
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0.0",
+        "name_for_human": "Azure Restaurant Agent",
+        "description_for_human": "An intelligent agent for Azure Restaurant that answers menu questions, shows availability.",
+        "functions": [
+          {
+            "name": "RestaurantAgent",
+            "states": {
+              "reasoning": {
+                "description": "Handles inquiries about the Azure Restaurant menu, including dishes, ingredients, pricing, and dietary suitability. Also manages table reservations by checking availability and booking slots.",
+                "examples": [
+                  "What vegetarian options do you have?",
+                  "Book a table for 2 people for dinner.",
+                  "Is the Butter Chicken spicy?",
+                  "Show me the Restaurant menu."
+                ]
+              }
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "Agent",
+            "spec": {
+              "instructions": "You are the Azure Restaurant Agent. Your role is to assist customers with menu inquiries, restaurant timings and table reservations.\n\nCapabilities:\n1. Menu Assistance: Provide details about dishes, including ingredients, spice levels, and dietary tags (Vegetarian, Non-Veg). Recommend dishes based on preferences.\n2. Pricing: All prices are in Indian Rupees (\u20B9).\n\nGuidelines:\n- Be polite, welcoming, and helpful.\n- If a user asks about prices, quote them in Indian Rupees (\u20B9).\n- If uncertain about a request, ask for clarification (\u20B9).\n- **Make sure to provide details only based on the Azure Restaurant menu and slots availability data you fetch from the fullMenu and listSlots plugins.**",
+              "model": "gpt-5-mini"
+            },
+            "run_for_functions": ["RestaurantAgent"]
+          }
+        ]
+      }
+    }
+  ]
+}
