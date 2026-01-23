@@ -1,0 +1,58 @@
+{
+  "AiAgents": [
+    {
+      "agentName": "RestaurantAgent",
+      "allowedClients": [
+        "AzurePortalProdAdvanced",
+          "AzurePortalProd",
+          "AzurePortalRCAdvanced",
+          "AzurePortalRC",
+          "AzurePortalMPACAdvanced",
+          "AzurePortalMPAC"
+      ],
+      "isLKG": true,
+      "manifest": {
+        "schema_version": "v1",
+        "version": "1.0",
+        "name_for_human": "Azure Restaurant Agent",
+        "description_for_human": "An intelligent agent for Azure Restaurant that answers menu questions, shows availability and reserves tables.",
+        "functions": [
+          {
+            "name": "RestaurantAgent",
+            "states": {
+              "reasoning": {
+                "description": "Handles inquiries about the Azure Restaurant menu, including dishes, ingredients, pricing, and dietary suitability. Also manages table reservations by checking availability and booking slots.",
+                "examples": [
+                  "What vegetarian options do you have?",
+                  "Book a table for 2 people for dinner at 8 PM.",
+                  "Is the Butter Chicken spicy?",
+                  "Show me the Restaurant menu.",
+                  "Reserve a table for lunch today at any available time."
+                ]
+              }
+            }
+          }
+        ],
+        "runtimes": [
+          {
+            "type": "A2A",
+            "auth": {
+              "type": "None"
+            },
+            "spec": [
+              {
+                "dataBoundary": "ROW",
+                "url": "https://restaurantservice-app-2025111821.gentlemeadow-f7257fcb.eastus.azurecontainerapps.io/agent"
+              },
+              {
+                "dataBoundary": "EU",
+                "url": "https://restaurantservice-app-2025111821.gentlemeadow-f7257fcb.eastus.azurecontainerapps.io/agent"
+              }
+            ],
+            "run_for_functions": ["RestaurantAgent"]
+          }
+        ]
+      }
+    }
+  ]
+}
