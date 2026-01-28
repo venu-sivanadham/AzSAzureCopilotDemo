@@ -29,4 +29,6 @@ sequenceDiagram
     end
 
     deactivate Server
+
+    Client-->>User: Copilot Response
 ```
