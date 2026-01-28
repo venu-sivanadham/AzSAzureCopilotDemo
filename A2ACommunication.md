@@ -11,8 +11,6 @@ sequenceDiagram
     participant Agent as Partner Agent
 
     User->>Client: User Prompt
-    Client->>Server: Authenticate (Token)
-    Server-->>Client: Authentication Success
 
     Client->>Server: Send A2A Message (User intent)
     
